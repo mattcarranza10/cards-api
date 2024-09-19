@@ -2,8 +2,6 @@
 
 ## Overview
 
-## Overview
-
 The Cards API is a service designed to securely manage credit and debit cards within a vault. 
 Its primary objective is to provide robust functionality for the creation, secure storage, and management of card information. 
 This API ensures the protection of sensitive data through advanced security measures, offering a comprehensive and efficient interface for all card-related operations.
