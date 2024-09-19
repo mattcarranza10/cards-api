@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: api
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: sh -c 'sleep 8 && go run /app/cmd/main.go'
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    networks:
+      - db
+
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    networks:
+      db:
+        aliases:
+          - postgres
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 1s
+      retries: 5
+      start_period: 1s
+      timeout: 1s
+
+  migration:
+    image: migrate/migrate
+    container_name: migration
+    volumes:
+      - ./internal/migrations:/migrations
+    command: [
+      "-path", "/migrations",
+      "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable",
+      "up"
+    ]
+    networks:
+      - db
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+networks:
+  db:

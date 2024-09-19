@@ -1,0 +1,13 @@
+# Go build files
+bin/
+dist/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Env files
+.env
+
+# IDE or editor-specific files
+.idea/
